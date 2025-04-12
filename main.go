@@ -194,7 +194,7 @@ func main() {
 		}
 		
 		// Log the entire request message
-		requestJson, _ := json.MarshalIndent(request, "", "  ")
+		// requestJson, _ := json.MarshalIndent(request, "", "  ")
 		// slog.Info("Chat request received", 
 		// 	"model", request.Model,
 		// 	"messagesCount", len(request.Messages),
@@ -233,7 +233,7 @@ func main() {
 				}
 				
 				// Debug the image data
-				imgSize := len(imgBase64)
+				// imgSize := len(imgBase64)
 				// slog.Info("Processing image", 
 				// 	"messageIndex", i,
 				// 	"imageIndex", imgIdx,
@@ -313,9 +313,9 @@ func main() {
 							URL: formatImageForAPI(imgBase64),
 						},
 					})
-					// slog.Info("Added top-level image to multimodal message", 
-					// 	"imageIndex", i, 
-					// 	"imageSize", len(imgBase64)/1024, "KB")
+					slog.Info("Added top-level image to multimodal message", 
+						"imageIndex", i, 
+						"imageSize", len(imgBase64)/1024, "KB")
 				}
 				
 				// Replace the user message with the multimodal content
@@ -559,7 +559,7 @@ func main() {
 		}
 		
 		// Log the entire request message
-		requestJson, _ := json.MarshalIndent(request, "", "  ")
+		// requestJson, _ := json.MarshalIndent(request, "", "  ")
 		// slog.Info("Generate request received", 
 		// 	"model", request.Model,
 		// 	"promptLength", len(request.Prompt),
