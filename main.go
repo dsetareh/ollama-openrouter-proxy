@@ -195,10 +195,10 @@ func main() {
 		
 		// Log the entire request message
 		requestJson, _ := json.MarshalIndent(request, "", "  ")
-		slog.Info("Chat request received", 
-			"model", request.Model,
-			"messagesCount", len(request.Messages),
-			"requestJson", string(requestJson))
+		// slog.Info("Chat request received", 
+		// 	"model", request.Model,
+		// 	"messagesCount", len(request.Messages),
+		// 	"requestJson", string(requestJson))
 		
 		// Process images in messages from our custom parser
 		for i, customMsg := range customRequest.Messages {
@@ -207,9 +207,9 @@ func main() {
 				continue
 			}
 			
-			slog.Info("Images found within message from custom parser", 
-				"messageIndex", i,
-				"imageCount", len(customMsg.Images))
+			// slog.Info("Images found within message from custom parser", 
+			// 	"messageIndex", i,
+			// 	"imageCount", len(customMsg.Images))
 			
 			// Process the images for this message
 			msg := &request.Messages[i]
@@ -234,15 +234,15 @@ func main() {
 				
 				// Debug the image data
 				imgSize := len(imgBase64)
-				slog.Info("Processing image", 
-					"messageIndex", i,
-					"imageIndex", imgIdx,
-					"imageSize", imgSize,
-					"imagePrefix", imgBase64[:min(20, imgSize)])
+				// slog.Info("Processing image", 
+				// 	"messageIndex", i,
+				// 	"imageIndex", imgIdx,
+				// 	"imageSize", imgSize,
+				// 	"imagePrefix", imgBase64[:min(20, imgSize)])
 				
 				formattedURL := formatImageForAPI(imgBase64)
-				slog.Info("Formatted image URL", 
-					"urlPrefix", formattedURL[:min(50, len(formattedURL))])
+				// slog.Info("Formatted image URL", 
+				// 	"urlPrefix", formattedURL[:min(50, len(formattedURL))])
 				
 				contentItems = append(contentItems, openai.ChatMessagePart{
 					Type: openai.ChatMessagePartTypeImageURL,
@@ -250,26 +250,26 @@ func main() {
 						URL: formattedURL,
 					},
 				})
-				slog.Info("Added image from message to multimodal message", 
-					"messageIndex", i,
-					"imageIndex", imgIdx, 
-					"imageSize", imgSize/1024, "KB")
+				// slog.Info("Added image from message to multimodal message", 
+				// 	"messageIndex", i,
+				// 	"imageIndex", imgIdx, 
+				// 	"imageSize", imgSize/1024, "KB")
 			}
 			
 			// Replace the user message with the multimodal content
 			msg.Content = "" // Will be ignored in favor of MultiContent
 			msg.MultiContent = contentItems
-			slog.Info("Successfully converted message to multimodal format", 
-				"messageIndex", i,
-				"totalContentParts", len(contentItems))
+			// slog.Info("Successfully converted message to multimodal format", 
+			// 	"messageIndex", i,
+			// 	"totalContentParts", len(contentItems))
 		}
 		
 		// Process images if present in the top-level request and add them to the last user message
 		if len(request.Images) > 0 && len(request.Messages) > 0 {
-			slog.Info("Images received in top-level /api/chat request", 
-				"count", len(request.Images), 
-				"model", request.Model,
-				"firstImageLength", len(request.Images[0])/1024, "KB")
+			// slog.Info("Images received in top-level /api/chat request", 
+			// 	"count", len(request.Images), 
+			// 	"model", request.Model,
+			// 	"firstImageLength", len(request.Images[0])/1024, "KB")
 			
 			// Find the last user message
 			lastUserMsgIndex := -1
@@ -290,9 +290,9 @@ func main() {
 				if len(userMsg.MultiContent) > 0 {
 					// Use existing MultiContent
 					contentItems = userMsg.MultiContent
-					slog.Info("Message already has MultiContent, appending to it", 
-						"messageIndex", lastUserMsgIndex,
-						"existingContentParts", len(contentItems))
+					// slog.Info("Message already has MultiContent, appending to it", 
+					// 	"messageIndex", lastUserMsgIndex,
+					// 	"existingContentParts", len(contentItems))
 				} else {
 					// Create new MultiContent with text
 					contentItems = append(contentItems, openai.ChatMessagePart{
@@ -300,9 +300,9 @@ func main() {
 						Text: prompt,
 					})
 					
-					slog.Info("Adding top-level images to last user message", 
-						"messageIndex", lastUserMsgIndex, 
-						"originalContent", prompt[:min(50, len(prompt))])
+					// slog.Info("Adding top-level images to last user message", 
+					// 	"messageIndex", lastUserMsgIndex, 
+					// 	"originalContent", prompt[:min(50, len(prompt))])
 				}
 				
 				// Add image contents
@@ -313,16 +313,16 @@ func main() {
 							URL: formatImageForAPI(imgBase64),
 						},
 					})
-					slog.Info("Added top-level image to multimodal message", 
-						"imageIndex", i, 
-						"imageSize", len(imgBase64)/1024, "KB")
+					// slog.Info("Added top-level image to multimodal message", 
+					// 	"imageIndex", i, 
+					// 	"imageSize", len(imgBase64)/1024, "KB")
 				}
 				
 				// Replace the user message with the multimodal content
 				userMsg.Content = "" // Will be ignored in favor of MultiContent
 				userMsg.MultiContent = contentItems
-				slog.Info("Successfully converted to multimodal message with top-level images", 
-					"totalContentParts", len(contentItems))
+				// slog.Info("Successfully converted to multimodal message with top-level images", 
+				// 	"totalContentParts", len(contentItems))
 			}
 		}
 
@@ -533,7 +533,7 @@ func main() {
 		}
 		
 		// Log the raw request body
-		slog.Info("Raw Generate request received", "raw_body", string(rawBody))
+		// slog.Info("Raw Generate request received", "raw_body", string(rawBody))
 		
 		// Restore the request body for later binding
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(rawBody))
@@ -560,26 +560,26 @@ func main() {
 		
 		// Log the entire request message
 		requestJson, _ := json.MarshalIndent(request, "", "  ")
-		slog.Info("Generate request received", 
-			"model", request.Model,
-			"promptLength", len(request.Prompt),
-			"hasImages", len(request.Images) > 0,
-			"requestJson", string(requestJson))
+		// slog.Info("Generate request received", 
+		// 	"model", request.Model,
+		// 	"promptLength", len(request.Prompt),
+		// 	"hasImages", len(request.Images) > 0,
+		// 	"requestJson", string(requestJson))
 		
 		// Log image information if present
-		if len(request.Images) > 0 {
-			slog.Info("Images received in /api/generate request", 
-				"count", len(request.Images), 
-				"model", request.Model,
-				"firstImageLength", len(request.Images[0])/1024, "KB",
-				"promptLength", len(request.Prompt))
+		// if len(request.Images) > 0 {
+		// 	slog.Info("Images received in /api/generate request", 
+		// 		"count", len(request.Images), 
+		// 		"model", request.Model,
+		// 		"firstImageLength", len(request.Images[0])/1024, "KB",
+		// 		"promptLength", len(request.Prompt))
 			
-			for i, img := range request.Images {
-				slog.Info("Image details", 
-					"imageIndex", i, 
-					"imageSize", len(img)/1024, "KB")
-			}
-		}
+		// 	for i, img := range request.Images {
+		// 		slog.Info("Image details", 
+		// 			"imageIndex", i, 
+		// 			"imageSize", len(img)/1024, "KB")
+		// 	}
+		// }
 
 		// Determine if streaming is requested (default to true if not specified)
 		streamRequested := true
