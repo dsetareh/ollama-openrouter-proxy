@@ -11,9 +11,9 @@ RUN CGO_ENABLED=0 go build -o ollama-proxy
 
 FROM scratch
 LABEL author="Mark Nefedov"
-LABEL org.opencontainers.image.source="https://github.com/marknefedov/ollama-openrouter-proxy"
+LABEL org.opencontainers.image.source="https://github.com/dsetareh/ollama-openrouter-proxy"
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/ollama-proxy /ollama-proxy
 
-EXPOSE 8080
+EXPOSE 11434
 ENTRYPOINT ["/ollama-proxy"]
