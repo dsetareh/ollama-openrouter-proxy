@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -64,10 +66,48 @@ type OpenrouterProvider struct {
 func NewOpenrouterProvider(apiKey string) *OpenrouterProvider {
 	config := openai.DefaultConfig(apiKey)
 	config.BaseURL = "https://openrouter.ai/api/v1/" // Custom endpoint if needed
+	
+	// Get header values from environment variables
+	httpReferer := os.Getenv("OPENROUTER_HTTP_REFERER")
+	if httpReferer == "" {
+		httpReferer = "" // Default value if env var not set
+		slog.Info("OPENROUTER_HTTP_REFERER not set, using default value")
+	}
+	
+	xTitle := os.Getenv("OPENROUTER_X_TITLE") 
+	if xTitle == "" {
+		xTitle = "ollama-proxy" // Default value if env var not set
+		slog.Info("OPENROUTER_X_TITLE not set, using default value")
+	}
+	
+	// Add custom headers for OpenRouter
+	config.HTTPClient = &http.Client{
+		Transport: &headerTransport{
+			base: http.DefaultTransport,
+			headers: map[string]string{
+				"HTTP-Referer": httpReferer,
+				"X-Title":      xTitle,
+			},
+		},
+	}
+	
 	return &OpenrouterProvider{
 		client:     openai.NewClientWithConfig(config),
 		modelNames: []string{},
 	}
+}
+
+// Custom transport to add headers to all requests
+type headerTransport struct {
+	base    http.RoundTripper
+	headers map[string]string
+}
+
+func (t *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	for key, value := range t.headers {
+		req.Header.Add(key, value)
+	}
+	return t.base.RoundTrip(req)
 }
 
 func (o *OpenrouterProvider) Chat(messages []openai.ChatCompletionMessage, modelName string) (openai.ChatCompletionResponse, error) {

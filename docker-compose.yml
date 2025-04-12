@@ -9,4 +9,6 @@ services:
       - .env
     container_name: ollama-proxy
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_HTTP_REFERER=${OPENROUTER_HTTP_REFERER}
+      - OPENROUTER_X_TITLE=${OPENROUTER_X_TITLE}
