@@ -1,0 +1,12 @@
+services:
+  ollama-proxy:
+    build: .
+    restart: unless-stopped
+    image: ollama-proxy
+    ports:
+      - "11434:11434"
+    env_file:
+      - .env
+    container_name: ollama-proxy
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
