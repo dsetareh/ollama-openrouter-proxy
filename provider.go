@@ -61,6 +61,7 @@ func formatImageForAPI(imgBase64 string) string {
 type OpenrouterProvider struct {
 	client     *openai.Client
 	modelNames []string // Shared storage for model names
+	apiKey     string   // Store the API key
 }
 
 func NewOpenrouterProvider(apiKey string) *OpenrouterProvider {
@@ -104,6 +105,7 @@ func NewOpenrouterProvider(apiKey string) *OpenrouterProvider {
 	return &OpenrouterProvider{
 		client:     openai.NewClientWithConfig(config),
 		modelNames: []string{},
+		apiKey:     apiKey,
 	}
 }
 
@@ -365,8 +367,34 @@ type Model struct {
 func (o *OpenrouterProvider) GetModels() ([]Model, error) {
 	currentTime := time.Now().Format(time.RFC3339)
 
+	// Create a dedicated client config for GetModels to always use the specific OpenRouter API URL
+	modelsAPIConfig := openai.DefaultConfig(o.apiKey) // Use stored API key
+	modelsAPIConfig.BaseURL = "https://openrouter.ai/api/v1/" // Force this URL
+
+	// Get header values from environment variables (mirroring NewOpenrouterProvider logic)
+	httpReferer := os.Getenv("OPENROUTER_HTTP_REFERER")
+	// If OPENROUTER_HTTP_REFERER is not set, httpReferer will be "", which is the desired default.
+
+	xTitle := os.Getenv("OPENROUTER_X_TITLE")
+	if xTitle == "" {
+		xTitle = "ollama-proxy" // Default value, consistent with NewOpenrouterProvider
+	}
+
+	// Add custom headers for OpenRouter
+	modelsAPIConfig.HTTPClient = &http.Client{
+		Transport: &headerTransport{
+			base: http.DefaultTransport,
+			headers: map[string]string{
+				"HTTP-Referer": httpReferer,
+				"X-Title":      xTitle,
+			},
+		},
+	}
+
+	modelsClient := openai.NewClientWithConfig(modelsAPIConfig)
+
 	// Fetch models from the OpenAI API
-	modelsResponse, err := o.client.ListModels(context.Background())
+	modelsResponse, err := modelsClient.ListModels(context.Background())
 	if err != nil {
 		return nil, err
 	}
