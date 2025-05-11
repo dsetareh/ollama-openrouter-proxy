@@ -65,7 +65,17 @@ type OpenrouterProvider struct {
 
 func NewOpenrouterProvider(apiKey string) *OpenrouterProvider {
 	config := openai.DefaultConfig(apiKey)
-	config.BaseURL = "https://openrouter.ai/api/v1/" // Custom endpoint if needed
+	// config.BaseURL = "https://openrouter.ai/api/v1/" // Custom endpoint if needed
+
+	// Get BaseURL from environment variable
+	baseURL := os.Getenv("OPENROUTER_BASE_URL")
+	if baseURL != "" {
+		config.BaseURL = baseURL
+		slog.Info("Using custom BaseURL from environment variable", "baseURL", baseURL)
+	} else {
+		config.BaseURL = "https://openrouter.ai/api/v1/" // Default endpoint
+		slog.Info("Using default BaseURL", "baseURL", config.BaseURL)
+	}
 	
 	// Get header values from environment variables
 	httpReferer := os.Getenv("OPENROUTER_HTTP_REFERER")
